@@ -1,6 +1,7 @@
 const prisma = require("../databases/prisma");
 const AlunoInvalidoError = require("../errors/AlunoInvalidoError");
 const AlunoNaoEncontradoError = require("../errors/AlunoNaoEncontradoError");
+const AlunoEmailDuplicadoError = require("../errors/AlunoEmailDuplicadoError");
 
 class AlunoService{
 
@@ -34,6 +35,46 @@ class AlunoService{
         }
 
         return aluno;
+    }
+
+    async update(id, aluno){
+        const alunoExistente = await prisma.aluno.findUnique({
+            where: {
+                id: Number(id)
+            }
+        });
+
+        if(!alunoExistente){
+            throw new AlunoNaoEncontradoError();
+        }
+
+        const {nome, email} = aluno;
+
+        if(!nome || !email){
+            throw new AlunoInvalidoError();
+        }
+
+        const emailExistente = await prisma.aluno.findFirst({
+            where: {
+                email: email,
+                NOT: {
+                    id: Number(id)
+                }
+            }
+        });
+
+        if(emailExistente){
+            throw new AlunoEmailDuplicadoError();
+        }
+
+        const alunoAtualizado = await prisma.aluno.update({
+            where: {
+                id: Number(id)
+            },
+            data: aluno
+        });
+
+        return alunoAtualizado;
     }
 
     async create(aluno){
