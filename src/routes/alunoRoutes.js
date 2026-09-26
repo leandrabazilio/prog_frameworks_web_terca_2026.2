@@ -11,6 +11,8 @@ router.get("/",(request, response, next)=>{
 
 router.get("/:id", alunoController.findById);
 
+router.delete("/:id", alunoController.delete);
+
 router.put("/:id", alunoController.update);
 
 router.post("/", validarAluno, alunoController.create);

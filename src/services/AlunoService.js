@@ -77,6 +77,26 @@ class AlunoService{
         return alunoAtualizado;
     }
 
+    async delete(id){
+        const alunoExistente = await prisma.aluno.findUnique({
+            where: {
+                id: Number(id)
+            }
+        });
+
+        if(!alunoExistente){
+            throw new AlunoNaoEncontradoError();
+        }
+
+        await prisma.aluno.delete({
+            where: {
+                id: Number(id)
+            }
+        });
+
+        return alunoExistente;
+    }
+
     async create(aluno){
         const {nome, email} = aluno;
         if(!nome || !email){
